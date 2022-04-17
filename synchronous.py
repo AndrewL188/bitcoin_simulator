@@ -1,6 +1,17 @@
 import random
 import math
 
+def best_attack_simulation(q, z) -> bool:
+    private_lead = 0
+    target_t_time = random.randint(1,200)
+    for i in range(target_t_time):
+        if (nextBlockMalicious(q)):
+            private_lead += 1
+        else:
+            private_lead = max(private_lead-1, 0)
+    return nakamoto_malicious_simulation(q, z, private_lead)
+    
+
 # Runs a simulation of an attacker using private chain 
 # mining strategy proposed in Bitcoin white paper. Attacker
 # will start mining on a private chain when a target transaction
@@ -8,9 +19,9 @@ import math
 # Attacker has mining power q and commit depth z
 # Returns whether attacker was successful in overwriting t.
 # Assume that attacker "gives up" after public chain has > 3z lead.
-def nakamoto_malicious_simulation(q, z) -> bool:
+def nakamoto_malicious_simulation(q, z, private_lead=0) -> bool:
     public_chain = 0
-    private_chain = 0
+    private_chain = private_lead
     while (public_chain < z):
         if (nextBlockMalicious(q)):
             private_chain += 1
@@ -31,10 +42,10 @@ def nakamoto_malicious_simulation(q, z) -> bool:
     return False
 
 # Computes empirical probability of attacker success by running many simulations
-def computeEmpiricalSuccess(q, z, iter=10000):
+def computeEmpiricalSuccess(attack, q, z, iter=10000):
     num_success = 0
     for i in range(iter):
-        num_success += int(nakamoto_malicious_simulation(q, z))
+        num_success += int(attack(q, z))
     return num_success/iter
 
 # Assume q is rounded to two decimal places
@@ -58,7 +69,10 @@ def computeAttackerSuccessProb(q, z):
 
 def main():
     print("Computed attacker success: " + str(computeAttackerSuccessProb(0.2, 6)))
-    print("Empirical attacker success: " + str(computeEmpiricalSuccess(0.2, 6, 100000)))
+    print("Nakamoto attack empirical attacker success: " + str(computeEmpiricalSuccess(nakamoto_malicious_simulation, 0.2, 6, 10000)))
+    print("Best attack empirical attacker success: " + str(computeEmpiricalSuccess(best_attack_simulation, 0.2, 6, 10000)))
+
+    
   
 # Using the special variable 
 # __name__
