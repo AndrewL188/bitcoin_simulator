@@ -1,4 +1,41 @@
 import random
+import math
+
+# Runs a simulation of an attacker using private chain 
+# mining strategy proposed in Bitcoin white paper. Attacker
+# will start mining on a private chain when a target transaction
+# t appears. Synchronous 0-delay case.
+# Attacker has mining power q and commit depth z
+# Returns whether attacker was successful in overwriting t.
+# Assume that attacker "gives up" after public chain has > 3z lead.
+def nakamoto_malicious_simulation(q, z) -> bool:
+    public_chain = 0
+    private_chain = 0
+    while (public_chain < z):
+        if (nextBlockMalicious(q)):
+            private_chain += 1
+        else:
+            public_chain += 1
+    # Attacker wins
+    if (private_chain >= public_chain):
+        return True
+    # Attacker needs to catch up
+    failure_threshold = max(3*z, 100)
+    while (public_chain - private_chain < failure_threshold):
+        if (nextBlockMalicious(q)):
+            private_chain += 1
+        else:
+            public_chain += 1
+        if (private_chain >= public_chain):
+            return True
+    return False
+
+# Computes empirical probability of attacker success by running many simulations
+def computeEmpiricalSuccess(q, z, iter=10000):
+    num_success = 0
+    for i in range(iter):
+        num_success += int(nakamoto_malicious_simulation(q, z))
+    return num_success/iter
 
 # Assume q is rounded to two decimal places
 def nextBlockMalicious(q) -> bool:
@@ -20,8 +57,8 @@ def computeAttackerSuccessProb(q, z):
     return pwin
 
 def main():
-    print("hey there")
-  
+    print("Computed attacker success: " + str(computeAttackerSuccessProb(0.3, 6)))
+    print("Empirical attacker success: " + str(computeEmpiricalSuccess(0.3, 6, 10000)))
   
 # Using the special variable 
 # __name__
