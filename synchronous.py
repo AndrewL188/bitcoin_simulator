@@ -39,7 +39,7 @@ def computeEmpiricalSuccess(q, z, iter=10000):
 
 # Assume q is rounded to two decimal places
 def nextBlockMalicious(q) -> bool:
-    return (random.randint(1,100) < (q*100))
+    return (random.randint(1,100) <= (q*100))
 
 # Function that computes actual probability of attacker success under
 # 0 delay synchrony assumption
@@ -57,8 +57,8 @@ def computeAttackerSuccessProb(q, z):
     return pwin
 
 def main():
-    print("Computed attacker success: " + str(computeAttackerSuccessProb(0.3, 6)))
-    print("Empirical attacker success: " + str(computeEmpiricalSuccess(0.3, 6, 10000)))
+    print("Computed attacker success: " + str(computeAttackerSuccessProb(0.2, 6)))
+    print("Empirical attacker success: " + str(computeEmpiricalSuccess(0.2, 6, 100000)))
   
 # Using the special variable 
 # __name__
